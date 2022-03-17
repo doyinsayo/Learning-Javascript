@@ -22,83 +22,6 @@ function generateCat () {
     div.appendChild(image);
 }
 
-/*
-// challenge 3: rock,paper and scissors
-function rpsGame(yourChoice) {
-    console.log(yourChoice);
-    var humanChoice, botChoice;
-    humanChoice = yourChoice.id;
-
-    botChoice = numberToChoice(randToRpsInt());
-    console.log('Computer choice', botChoice);
-
-    results = decideWinner(humanChoice,botChoice); // [w.l] or [d,d] or [l,w]
-    console.log(results);
-
-    message = finalMessage(results) //{'message':"you won", 'color':'green'}
-    console.log(message);
-    //rpsFrontEnd(yourChoice.id, botChoice.id, message);
-}
-
-function randToRpsInt() {
-    return Math.floor(Math.random() *3);
-}
-
-function numberToChoice(number) {
-    return ['rock','paper','scissors'][number];
-}
-
-function decideWinner (yourChoice, computerChoice) {
-    var rpsDatabase = {
-        'rock': {'scissors':1,'rock':0.5, 'paper':0},
-        'paper': {'rock':1, 'paper':0.5, 'scissors':0},
-        'scissors': {'paper':1,'scissors':0.5,'rock':0}
-    };
-
-    var yourScore = rpsDatabase[yourChoice][computerChoice];
-    var computerScore = rpsDatabase[computerChoice][yourChoice];
-
-    return [yourScore,computerScore];
-}
-
-function finalMessage([yourScore,computerScore]) {
-    if ( yourScore == 0) {
-        return {'message': "You lost!",'color':'red'};  
-    }else if (yourScore == 0.5) {
-        return {'message':'You tied!','color':'yellow'};
-    }else {
-        return {'message':'You won!',"color":'green'};
-    }
-}
-
-function rpsFrontEnd(humanImageChoice, botImageChoice, finalMessage) {
-    var imagesDatabase = {
-        'rock': document.getElementById('rock').src,
-        'paper': document.getElementById('paper').src,
-        'scissors': document.getElementById('scissors').src,
-    }
-
-    //let's remove all the images
-    document.getElementById('rock').remove();
-    document.getElementById('paper').remove();
-    document.getElementById('scissors').remove();
-    
-    let humanDiv = document.createElement('div');
-    let botDiv =   document.createElement('div');
-    let messageDiv =  document.createElement('div');
-
-    humanDiv.innerHTML = "<img src='" + imagesDatabase[humanImageChoice] + "' height=150 style='box-shadow: 0px 10px 50px blue;'>"
-    messageDiv.innerHTML = "<h1 style='color: " + finalMessage['color'] + "; font-size: 60px; padding: 30px;'>" + finalMessage['message'] + "</h1>"
-    botDiv.innerHTML = "<img src='" + imagesDatabase[botImageChoice] + "' height=150 style='box-shadow: 0px 10px 50px red;'>"
-
-    document.getElementById('flex-box-rps-div').appendChild(humanDiv);
-    document.getElementById('flex-box-rps-div').appendChild(messageDiv);
-    document.getElementById('flex-box-rps-div').appendChild(botDiv);
-
-}
-
- */
-
 // Challenge 3: Rock, Paper, Scissors
 function rpsGame(yourChoice) {
     console.log(yourChoice);
@@ -175,9 +98,60 @@ function rpsFrontEnd(humanImageChoice, botImageChoice, finalMessage) {
     messageDiv.innerHTML = "<h1 style='color: " + finalMessage['color'] + "; font-size: 60px; padding: 30px; '>" + finalMessage['message'] + "</h1>"
     botDiv.innerHTML = "<img src='" + imagesDatabase[botImageChoice] + "' height='140' width='140' style='box-shadow: 0px 10px 50px rgba(243, 38, 24,1);'>"
 
-
     document.getElementById('flex-box-rps-div').appendChild(humanDiv);
     document.getElementById('flex-box-rps-div').appendChild(messageDiv);
     document.getElementById('flex-box-rps-div').appendChild(botDiv);
 
+}
+// Challenge 4: Change the Color of All Buttons
+
+let all_buttons = document.getElementsByTagName('button');
+
+let allButtonsCopy = [];
+for (let i=0; i < all_buttons.length; i++) {
+    allButtonsCopy.push(all_buttons[i].classList[1]);
+}
+
+
+function buttonColorChange(buttonThingy) {
+    if (buttonThingy.value === 'red') {
+        redButtons();
+    } else if (buttonThingy.value === 'green') {
+        greenButtons();
+    } else if (buttonThingy.value === 'reset') {
+        resetButtons();
+    } else if (buttonThingy.value === 'random') {
+        randomColors();
+    }
+}
+
+
+function redButtons() {
+    for ( i=0; i < all_buttons.length; i++) {
+        all_buttons[i].classList.replace(all_buttons[i].classList[1], 'btn-danger');
+    }
+} 
+
+
+function greenButtons() {
+    for ( i=0; i < all_buttons.length; i++) {
+        all_buttons[i].classList.replace(all_buttons[i].classList[1], 'btn-success');
+    }
+}
+
+
+function resetButtons() {
+    for ( i=0; i < all_buttons.length; i++) {
+        all_buttons[i].classList.replace(all_buttons[i].classList[1], allButtonsCopy[i]);
+    }
+}
+
+
+function randomColors() {
+    let choices = ['btn-primary' ,'btn-danger' ,'btn-success' ,'btn-warning'];
+
+    for (let i=0; i < all_buttons.length; i++) {
+        let randomNumber = Math.floor(Math.random() * 4);
+        all_buttons[i].classList.replace(all_buttons[i].classList[1], choices[randomNumber]);
+    }
 }
