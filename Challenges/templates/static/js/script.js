@@ -155,3 +155,257 @@ function randomColors() {
         all_buttons[i].classList.replace(all_buttons[i].classList[1], choices[randomNumber]);
     }
 }
+
+// Challenge 5: Blackjack
+
+
+let blackjackGame = {
+    'you': {'scoreSpan': '#your-blackjack-result', 'div': '#your-box', 'score':0},
+    'dealer': {'scoreSpan': '#dealer-blackjack-result', 'div': '#dealer-box', 'score':0},
+    'cards': ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'],
+    'cardsMap': {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': [1, 10]},
+    'wins': 0,
+    'losses': 0,
+    'draws': 0,
+    'isStand': false,
+    'turnsOver': false,
+};
+
+
+const YOU = blackjackGame['you'];
+const DEALER = blackjackGame['dealer'];
+
+const hitSound = new Audio('static/sounds/swish.m4a');
+const winSound = new Audio('static/sounds/cash.mp3');
+const lossSound = new Audio('static/sounds/aww.mp3');
+
+document.querySelector('#blackjack-hit-button').addEventListener('click', blackjackHIT, true);
+document.querySelector('#blackjack-stand-button').addEventListener('click', stand, true);
+document.querySelector('#blackjack-nextHand-button').addEventListener('click', blackjackNextHand, true);
+
+Hit = 0;
+Stand = 0;
+
+let currentPlayer = YOU;
+
+
+function blackjackHIT() {
+    if (blackjackGame['isStand'] == false){
+        currentPlayer = YOU;
+        Hit++;
+        let card = randomCard();
+
+        showCard(card, currentPlayer);
+        updateScore(card, currentPlayer);
+        showScore(currentPlayer);
+        decideBlackjackWinner();
+        // If you press hit two times DEALER will play one card automatically
+        if (Hit == 2) {
+            currentPlayer = DEALER;
+            let card = randomCard();
+            
+            showCard(card, currentPlayer);
+            updateScore(card, currentPlayer);
+            showScore(currentPlayer);
+        }
+    }
+    
+}
+
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function stand() {
+    blackjackGame['isStand'] = true;
+    if (blackjackGame['turnsOver'] == false && Stand == 0) {
+        Stand++;
+        while (DEALER['score'] < 15 && blackjackGame['isStand'] === true) {
+            currentPlayer = DEALER;
+            let card = randomCard();
+            
+            showCard(card, currentPlayer);
+            updateScore(card, currentPlayer);
+            showScore(currentPlayer);
+            decideBlackjackWinner();
+            await sleep(1000);
+        }
+        
+    }else if (blackjackGame['turnsOver'] == false) {
+        currentPlayer = DEALER;
+            let card = randomCard();
+            
+            showCard(card, currentPlayer);
+            updateScore(card, currentPlayer);
+            showScore(currentPlayer);
+            decideBlackjackWinner();
+            await sleep(1000);
+    }
+}
+
+
+function blackjackNextHand() {
+    if (blackjackGame['turnsOver'] == true) {
+        let yourImages = document.querySelector('#your-box').querySelectorAll('img');
+        let dealerImages = document.querySelector('#dealer-box').querySelectorAll('img');
+        
+        // Removing images
+        for (i = 0; i < yourImages.length; i++) {
+            yourImages[i].remove();
+        }
+
+        for (i = 0; i < dealerImages.length; i++) {
+            dealerImages[i].remove();
+        }
+
+        function resetScore(activePlayer) {
+            activePlayer['score'] = 0;
+            document.querySelector(activePlayer['scoreSpan']).style.color = 'white';
+            document.querySelector(activePlayer['scoreSpan']).textContent = activePlayer['score'];
+        }
+
+        resetScore(YOU);
+        resetScore(DEALER);
+        currentPlayer = YOU;
+
+        Hit = 0;
+        Stand = 0;
+
+        document.querySelectorAll('#textLoser').forEach(e => e.parentNode.removeChild(e));
+        document.querySelectorAll('#textWinner').forEach(e => e.parentNode.removeChild(e));
+        document.querySelectorAll('#textDraw').forEach(e => e.parentNode.removeChild(e));
+
+        blackjackGame['turnsOver'] = false;
+        blackjackGame['isStand'] = false;
+    }
+}
+
+
+function randomCard() {
+    let randomIndex = Math.floor(Math.random() *13);
+    return blackjackGame['cards'][randomIndex];
+}
+
+
+function showCard(card, activePlayer) {
+    if (activePlayer['score'] <= 21) {
+        let cardImage = document.createElement('img');
+        cardImage.src = `static/images/Cards/${card}.png`;
+        document.querySelector(activePlayer['div']).appendChild(cardImage);
+        hitSound.play();
+    }
+}
+
+
+function updateScore(card, activePlayer) {
+    if (card == 'A') {
+        // This is like a JOKER so if adding 11 keeps me below 21, add 11. Otherwise add 1.
+        // so you choose for 'Ace' to be 11 or 1.
+        if ((activePlayer['score']) <= 10 ) {
+            blackjackGame['cardsMap'][card] = 11;
+        }else {blackjackGame['cardsMap'][card] = 1};
+    }
+    activePlayer['score'] += blackjackGame['cardsMap'][card];
+}
+
+
+function showScore(activePlayer) {
+    if (activePlayer['score'] > 21) {
+        document.querySelector(activePlayer['scoreSpan']).textContent = 'BUST!';
+        document.querySelector(activePlayer['scoreSpan']).style.color = 'red';
+    }else {
+        document.querySelector(activePlayer['scoreSpan']).textContent = activePlayer['score'];
+    }
+}
+
+
+function decideBlackjackWinner() {
+    let yourScore = YOU['score'];
+    let dealerScore = DEALER['score'];
+
+    // Game Rules
+    switch (true) {
+        case (yourScore > 21):
+            loser(YOU);
+            winner(DEALER);
+            blackjackGame['losses']++;
+            losses.textContent = blackjackGame['losses'];
+            lossSound.play();
+            blackjackGame['turnsOver'] = true
+            break;
+        case (dealerScore > 21):
+            winner(YOU);
+            loser(DEALER);
+            blackjackGame['wins']++;
+            wins.textContent = blackjackGame['wins'];
+            winSound.play();
+            blackjackGame['turnsOver'] = true
+            break;
+        case (dealerScore > yourScore && dealerScore >= 15):
+            loser(YOU);
+            winner(DEALER);
+            blackjackGame['losses']++;
+            losses.textContent = blackjackGame['losses'];
+            lossSound.play();
+            blackjackGame['turnsOver'] = true
+            break;
+        case (dealerScore == yourScore):
+            draw(YOU);
+            draw(DEALER);
+            blackjackGame['draws']++;
+            draws.textContent = blackjackGame['draws'];
+            blackjackGame['turnsOver'] = true
+            break;
+    }
+}
+
+
+function loser(activePlayer) {
+    let h2 = document.createElement('h2');
+    let textLoser;
+    if (activePlayer == YOU){
+        textLoser = document.createTextNode('LOST!');
+    } else if (activePlayer == DEALER) {
+        textLoser = document.createTextNode('DEALER BUST!');
+    }
+    h2.appendChild(textLoser);
+    Object.assign(h2, {
+        id:'textLoser',
+        style:'color:red;',
+    })
+    document.querySelector(activePlayer['div']).appendChild(h2);
+}
+
+
+function winner(activePlayer) {
+    // let h2 = document.createElement('h2');
+    // let textWinner = document.createTextNode('YOU WIN!');
+    // h2.appendChild(textWinner);
+    // h2.setAttribute('style', 'color: green;');
+    // Object.assign(h2, {
+    //     id:'textWinner',
+    //     style:'color: green;',
+    // })
+    // document.querySelector(activePlayer['div']).appendChild(h2);
+    // One-liner:
+    document.querySelector(activePlayer['div']).appendChild(Object.assign(document.createElement('h2'), {style:'color: green;', id:'textWinner'})).appendChild(Object.assign(document.createTextNode('YOU WON!')));
+
+}
+
+
+function draw(activePlayer) {
+    let h2 = document.createElement('h2');
+    let textDraw = document.createTextNode('Draw...');
+    h2.appendChild(textDraw);
+    Object.assign(h2, {
+        id:'textDraw',
+        style:'color:yellow;',
+    })
+    document.querySelector(activePlayer['div']).appendChild(h2);
+}
+
+
+function completeYourHand() {
+    alert('Please complete your hand first before submitting a new one.');
+}

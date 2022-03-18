@@ -79,12 +79,12 @@
            <div>
                <button class="btn-lg btn-primary mr-2" id="blackjack-hit-button">Hit</button>
                <button class="btn-lg btn-warning mr-2" id="blackjack-stand-button">Stand</button>
-               <button class="btn-lg btn-danger" id="blackjack-deal-button">Deal</button>
+               <button class="btn-lg btn-danger" id="blackjack-deal-button">Next hand</button>
            </div>
         </div>
 
         <div class="flex-blackjack-row-3">
-            <table style="border: 1px solid black;">
+            <table>
                 <tr>
                     <th>Wins</th>
                     <th>Losses</th>
@@ -92,9 +92,9 @@
                 </tr>
 
                 <tr>
-                    <td>0</td>
-                    <td>0</td>
-                    <td>0</td>
+                    <td><span id="wins">0</span></td>
+                    <td><span id="losses">0</span></td>
+                    <td><span id="draws">0</span></td>
                 </tr>
             </table>
         </div>
